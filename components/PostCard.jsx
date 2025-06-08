@@ -11,7 +11,8 @@ import { Video } from 'expo-av';
 import moment from 'moment';
 import { createPostLike, removePostLike } from '../services/postService';
 import Loading from '../components/Loading'
-
+import * as Sharing from 'expo-sharing';
+import * as FileSystem from 'expo-file-system';
 const textStyle = {
     color: theme.colors.dark,
     fontSize: hp(1.75),
@@ -87,16 +88,28 @@ const PostCard = ({
         
     }
 
-    const onShare=async()=>{
-        let content={message: stripHtmlTags(item?.body)};
-        if(item?.file){
-            setLoading(true);
-            let url=await downloadFile(getSupabaseFileUrl(item?.file).uri);
-            setLoading(false);
-            content.url=url;
+    const onShare = async () => {
+    try {
+        setLoading(true);
+        const fileUrl = getSupabaseFileUrl(item.file)?.uri;
+        const localUri = await downloadFile(fileUrl); // should be file:// URI
+        setLoading(false);
+
+        if (!localUri || !(await Sharing.isAvailableAsync())) {
+            console.warn('Sharing is not available or file download failed');
+            return;
         }
-        Share.share(content)
+
+        await Sharing.shareAsync(localUri, {
+            mimeType: 'image/png',
+            dialogTitle: stripHtmlTags(item?.body || 'Share'),
+        });
+
+    } catch (error) {
+        setLoading(false);
+        console.error('Error sharing file:', error);
     }
+};
 
     const handlePostDelete = ()=>{
         Alert.alert("Confirm", "Are you sure want to do this?", [

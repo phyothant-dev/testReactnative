@@ -20,15 +20,16 @@ import {
 import moment from 'moment';
 import ScreenWrapper from '../../../components/ScreenWrapper';
 import Header from '../../../components/Header';
-import Avatar from '../../../components/Avatar'; // import Avatar component
+import Avatar from '../../../components/Avatar';
 import Icon from '../../../assets/icons'
 import { theme } from '../../../constants/theme';
 import { hp, wp } from '../../../helpers/common';
+import { useRouter } from 'expo-router'
 
 const ChatScreen = () => {
   const { user } = useAuth();
   const { userId } = useLocalSearchParams();
-
+  const router = useRouter();
   const [chatUser, setChatUser] = useState(null);
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
@@ -93,10 +94,13 @@ const ChatScreen = () => {
     }
   };
 
+  const handleChatProfile = () => {
+    router.push({pathname:'chatProfile',params:{...chatUser, userId: chatUser.id}});
+  };
+
   const renderMessage = (msg) => {
     const isMe = String(msg.senderid) === String(user.id);
 
-    // Use avatar URI from user or chatUser, you may need to adapt this based on your data structure
     const avatarUri = isMe ? user.image : chatUser?.image || null;
 
     return (
@@ -144,8 +148,9 @@ const ChatScreen = () => {
     justifyContent: "space-between",
     alignItems: "center"}}>
             <Text style={styles.title}>{chatUser.name}</Text>
-            
+             <TouchableOpacity onPress={handleChatProfile}>
             <Avatar uri={chatUser?.image} style={{marginLeft:wp(3)}}  />
+            </TouchableOpacity>
           </View>
           
         </View>

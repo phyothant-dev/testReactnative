@@ -53,7 +53,7 @@ const ChatList = () => {
           latestMap.set(otherUserId, {
             content: msg.content,
             created_at: msg.created_at,
-            senderLabel: isSentByMe ? 'You' : 'Them',
+            senderLabel: isSentByMe ? 'You :' : '',
           });
         }
 
@@ -68,7 +68,7 @@ const ChatList = () => {
         const latest = latestMap.get(u.id);
         return {
           ...u,
-          lastMessage: latest ? `${latest.senderLabel}: ${latest.content}` : 'No conversation yet',
+          lastMessage: latest ? `${latest.senderLabel} ${latest.content}` : 'No conversation yet',
           lastMessageTime: latest?.created_at || null,
           unreadCount: unreadCountMap.get(u.id) || 0,
         };
